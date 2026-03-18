@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Resto Quiz</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; overflow:hidden; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(160deg, #070e1a 0%, #0d1929 40%, #0a1628 100%);
+  color: #e0e8f0;
+}
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#1e3a5f; border-radius:4px; }
+
+.screen { display:none; height:100vh; flex-direction:column; }
+.screen.active { display:flex; }
+
+/* HOME */
+.home { align-items:center; justify-content:center; padding:40px 24px; text-align:center; }
+.logo { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#1a3a6a,#4fc3f7); display:flex; align-items:center; justify-content:center; margin-bottom:24px; box-shadow:0 0 40px rgba(79,195,247,0.25); }
+.logo span { font-size:42px; }
+.home h1 { font-size:26px; font-weight:700; color:#fff; letter-spacing:-0.5px; margin-bottom:6px; }
+.home .sub { font-size:15px; color:#78909c; font-weight:500; margin-bottom:4px; }
+.home .cnt { font-size:13px; color:#4fc3f7; font-weight:600; letter-spacing:0.5px; margin-bottom:36px; }
+.btn-primary {
+  width:100%; max-width:320px; padding:16px 0; font-size:17px; font-weight:700; color:#fff;
+  background:linear-gradient(135deg,#1565c0,#4fc3f7); border:none; border-radius:14px; cursor:pointer;
+  margin-bottom:14px; box-shadow:0 4px 20px rgba(79,195,247,0.3); letter-spacing:0.3px;
+}
+.btn-secondary {
+  width:100%; max-width:320px; padding:16px 0; font-size:17px; font-weight:700; color:#4fc3f7;
+  background:transparent; border:2px solid #1e3a5f; border-radius:14px; cursor:pointer; margin-bottom:14px;
+}
+.credit { font-size:12px; color:#455a64; margin-top:32px; }
+
+/* TOPBAR */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
+  border-bottom:1px solid #1e3a5f; background:rgba(7,14,26,0.92); backdrop-filter:blur(10px);
+  flex-shrink:0; padding-top: max(14px, env(safe-area-inset-top));
+}
+.topbar .back { background:none; border:none; color:#4fc3f7; font-size:15px; font-weight:600; cursor:pointer; min-width:60px; text-align:left; }
+.topbar .title { font-size:16px; font-weight:700; color:#fff; }
+.topbar .spacer { width:60px; }
+
+/* LIST */
+.list-scroll { flex:1; overflow-y:auto; padding:12px 16px; -webkit-overflow-scrolling:touch; }
+.list-item {
+  display:flex; align-items:center; gap:14px; width:100%; padding:14px 16px; margin-bottom:8px;
+  background:#0f1b2d; border:1px solid #1e3a5f; border-radius:12px; cursor:pointer; text-align:left;
+  color:#e0e8f0; font-size:14px; transition:all 0.15s;
+}
+.list-item:active { background:#1a2744; border-color:#4fc3f7; }
+.list-num {
+  display:inline-flex; align-items:center; justify-content:center; min-width:34px; height:34px;
+  border-radius:10px; background:linear-gradient(135deg,#1565c0,#1e88e5); color:#fff;
+  font-size:13px; font-weight:700; flex-shrink:0;
+}
+.list-text { line-height:1.4; font-size:13.5px; color:#b0bec5; }
+
+/* QUESTION */
+.q-scroll { flex:1; overflow-y:auto; padding:20px 16px; -webkit-overflow-scrolling:touch; }
+.q-card {
+  background:linear-gradient(145deg,#0f1b2d,#162a4a); border:1px solid #1e3a5f;
+  border-radius:16px; padding:24px 20px; margin-bottom:16px;
+}
+.q-badge {
+  display:inline-block; font-size:11px; font-weight:700; color:#4fc3f7;
+  background:rgba(79,195,247,0.12); padding:4px 12px; border-radius:20px; margin-bottom:14px; letter-spacing:0.4px;
+}
+.q-text { font-size:17px; font-weight:600; line-height:1.5; color:#fff; }
+.btn-answer {
+  width:100%; padding:14px 0; font-size:15px; font-weight:700; color:#4fc3f7;
+  background:rgba(79,195,247,0.08); border:2px solid #1e3a5f; border-radius:12px;
+  cursor:pointer; margin-bottom:16px; transition:all 0.2s;
+}
+.btn-answer.open { color:#fff; background:linear-gradient(135deg,#1565c0,#1e88e5); border-color:transparent; }
+.a-card {
+  background:#0a1628; border:1px solid #1e3a5f; border-radius:14px;
+  padding:20px 18px; margin-bottom:16px; animation:fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.a-text { font-size:14px; line-height:1.7; color:#b0bec5; white-space:pre-wrap; }
+.btn-next {
+  width:100%; padding:14px 0; font-size:15px; font-weight:700; color:#fff;
+  background:linear-gradient(135deg,#2e7d32,#4caf50); border:none; border-radius:12px;
+  cursor:pointer; box-shadow:0 4px 16px rgba(76,175,80,0.25); margin-bottom:16px;
+}
+.bottom-pad { height:40px; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<!-- HOME SCREEN -->
+<div id="home" class="screen home active">
+  <div class="logo"><span>🦷</span></div>
+  <h1>Restoratif Diş Tedavisi</h1>
+  <p class="sub">Staj Soruları 2023–2024</p>
+  <p class="cnt" id="qcount"></p>
+  <button class="btn-primary" onclick="openRandom()">🎲&nbsp; Rastgele Soru</button>
+  <button class="btn-secondary" onclick="showList()">📋&nbsp; Soru Listesi</button>
+  <p class="credit">Atıf Hassun notlarından derlenmiştir</p>
+</div>
+
+<!-- LIST SCREEN -->
+<div id="list" class="screen">
+  <div class="topbar">
+    <button class="back" onclick="goHome()">← Geri</button>
+    <span class="title">Soru Listesi</span>
+    <span class="spacer"></span>
+  </div>
+  <div class="list-scroll" id="listContainer"></div>
+</div>
+
+<!-- QUESTION SCREEN -->
+<div id="question" class="screen">
+  <div class="topbar">
+    <button class="back" id="qBack">← Geri</button>
+    <span class="title" id="qTopTitle"></span>
+    <span class="spacer"></span>
+  </div>
+  <div class="q-scroll" id="qScroll">
+    <div class="q-card">
+      <div class="q-badge" id="qBadge"></div>
+      <p class="q-text" id="qText"></p>
+    </div>
+    <button class="btn-answer" id="btnAnswer" onclick="toggleAnswer()">Cevabı Gör ▼</button>
+    <div class="a-card" id="aCard" style="display:none">
+      <div class="a-text" id="aText"></div>
+    </div>
+    <button class="btn-next" id="btnNext" style="display:none" onclick="openRandom()">🎲&nbsp; Sonraki Rastgele Soru</button>
+    <div class="bottom-pad"></div>
+  </div>
+</div>
+
+<script>
+var Q = [
+{id:1, q:"Adezyonu etkileyen faktörler nelerdir? İyi bir adeziv için ne gereklidir?", a:"• Temiz ve düzgün yüzey\n• Islanabilirlik: Sıvı tüm yüzeye yayılmalı\n• Değim açısı: Ne kadar küçükse ıslanabilirlik o kadar iyi\n• Yüzey gerilim değeri: Adezivin yüzey gerilim değeri, adherentin yüzey gerilim değerine eşit ya da daha az olmalı\n\nİyi bir adezivde aranan özellikler:\n• Universal bağlanma (mikromekanik + kimyasal)\n• Oluşan kuvvetlere karşı koyabilmeli\n• Biyouyumluluk\n• Kuru ve nemli ortamda bağlantı sağlayabilmeli\n• Kolay uygulama\n• 17-24 MPa kuvvetle bağlanmalı"},
+{id:2, q:"Mine nedir? Mine prizmalarını anlatınız. Minede adezyon nasıl sağlanır?", a:"Kökeni ektoderm – ameloblast hücresi. Kolede kalınlığı sıfırdan başlar. %96 mineral, %4 su. Yenilenme yeteneği yoktur.\n\nAmeloblastların son görevi: Nasmyth zarı (mine kutikülası) oluşturmak.\n\nMine prizmaları: Mine kını ve interprizmatik matriksten oluşur. Baş kısmı oklüzal, kuyruk kısmı servikale uzanır. Enine kesitte altıgen görünüm. Yapıtaşı apatit kristalleri.\n\nOptik yanıltı → Hunter-Schreger bantları\nBüyüme çizgileri → Retzius çizgileri\nTamamlanmamış Retzius halkalarındaki oluklar → Perikimata\nTüberkül bölgesinde örgülü mine, servikal alanda yapısız tabaka (prizmasız)\n\nMine asitlendiğinde:\n• Tip 1: Prizmaların iç kısmı erir (bal peteği)\n• Tip 2: Prizmaların periferi erir (kaldırım taşı)\n• Tip 3: Belirgin prizma yapısı gözlenemez"},
+{id:3, q:"Self-etch sistemi nedir? Açıklayınız.", a:"Temel mantık: Smear tabakasının adezyon için uygun bir yapı olduğu düşüncesi.\n\n• Smear tabakasını kaldırmaz, yalnızca çözerek dentini yüzeyel demineralize eder\n• Su ile yıkama yapılmadığından, çözünen smear tabaka bonding işlemine dahil olur\n• Smear tabaka ile iç içe geçmiş bir hibrit tabaka oluşturulur\n\nİki tipi vardır:\n1) Tek aşamalı: Asidik primer + Adeziv (tek şişede)\n2) İki aşamalı: Asidik monomer ilave edilmiş primer + Adeziv (ayrı şişelerde)\n\nAvantaj: Asit uygulaması ve yıkama gerekmez, sadece hafif hava ile kurutulur → klinik kolaylık\nMantığı: Demineralize olan dentin derinliği boyunca açığa çıkmış kollajen yapıya adezivin infiltre olabilmesi"},
+{id:4, q:"Total-etch sistemin dentine bağlanmasını açıklayınız.", a:"Smear tabakasını tamamen uzaklaştıran adezivlerdir.\nHem mine hem dentin aynı asitle, farklı sürelerde pürüzlendirilir (\"total etch\").\n\n3 Aşamalı (4. jenerasyon): Asit + Primer + Adeziv ayrı ayrı\n2 Aşamalı (5. jenerasyon): Primer ve adeziv birleştirilmiş\n\nAsit: %37 fosforik asit → Minede en az 15 sn, dentinde en fazla 15 sn\nYıkanıp hafifçe kurutulur (nemli bağlanma)\n\nPrimer: Aseton, etanol veya su içinde erimiş polimerler\nAdeziv: Kollajen nano boşlukları doldurup HA ile karışarak hibrit tabaka oluşturur → aside dirençli, mikrosızıntıyı önler\n\nAvantajları: İyi bağlanma, partikül ilave imkânı\nDezavantajları: Asit süresini aşma riski, yıkama zorunluluğu, nemli/kuru kalma riski, zaman alıcı"},
+{id:5, q:"Çürüğün oluşmasında etkili faktörler nelerdir? Çürük nedir? Çürüğe sebep olan bakteriler?", a:"Çürük: Karyojenik mikroorganizmaların karbonhidratları fermente etmesi sonucunda açığa çıkan asidin diş sert dokularında oluşturduğu yıkımdır.\n\n4 Faktör (Keyes + Newbrun):\n1) Karyojenik mikroflora: Streptokoklar, Aktinomicesler, Laktobasiller\n2) Fermente edilebilen karbonhidratlar: Sükroz, glikoz, fruktoz\n3) Plak: EN ÖNEMLİ FAKTÖR – asidojenik mo. barındırır, asidin uzun süre dişi etkilemesine izin verir, tükürüğün yıkamasını engeller\n4) Süre: Minimum 30 dakika"},
+{id:6, q:"Plak birikimini etkileyen faktörler nelerdir? Plak oluşum aşamaları?", a:"Plak birikimini etkileyen faktörler:\n• Ağız/diş bakımı\n• Pürüzlü diş yüzeyleri\n• Cilasız dolgular\n• Taşkın dolgular\n• Çapraşık dişler\n• Tükürük içeriği, viskozitesi ve miktarı\n• Diyet tipi\n\nPlak oluşum aşamaları:\n1) Başlangıç koloni safhası\n2) Hızlı mikrop üreme safhası\n3) Remodelling safhası"},
+{id:7, q:"Florun dişe etkileri nelerdir? Florun bakteri plağı üzerine etkisi nasıl olur?", a:"Remineralizasyon: Başlangıç lezyonunun iyileşmesini hızlandırır, apatit kristallerini dirençli hale getirir, kristaller arası boşlukları doldurur.\n\nBakteri plağı üzerine etki:\n• Asidojen mo.'ların glikojen yıkımı yavaşlar → asit üretimi azalır\n• Plağa geçen fosfat iyonlarının bakteriye fiksasyonunu önler → serbest Ca ve PO₄ kalır → remineralizasyon\n• Florapatit varlığında tükürük glikoproteinleri zor çökelir → plak zor oluşur\n• St. mutans ve St. sanguis sayılarını azaltır"},
+{id:8, q:"Pulpayı içermeyen travmalarda tedavi nasıl yapılır?", a:"Komplike olmayan kron kırığı olarak da bilinir.\n\nTedavide etkili faktörler: Kırığın pulpaya yakınlığı, yüzey alanı, hastanın yaşı\n\nKlinik süreç:\n• Elektrik pulpa testi yapılabilir\n• Kırık dentin yüzeyinin tamamı kalsiyum hidroksitle kapatılmalı\n• Minede gerekli bizotaj yapıldıktan sonra kompozitle restore edilmeli\n• Kırık kron parçası varsa kompozitle yapıştırılması tercih edilir\n\nTakip:\n• Diş başlangıçta vital, 2 ay sonra devital ise → kanal tedavisi\n• Pulpa dejenerasyonu, kalsifikasyon, iç rezorpsiyon oluşabilir\n• Daimi dolgu sonrası oklüzyon kontrolü, birkaç yıl radyografik + vitalite kontrolü"},
+{id:9, q:"Kompozitin içeriğini açıklayınız.", a:"1) ORGANİK FAZ (Taşıyıcı):\n• Monomer: Bis-GMA (en çok), UDMA\n• Komonomer: TEGDMA, EDMA, MMA, BisEMA (viskoziteyi azaltmak için)\n• Polimerizasyon başlatıcıları\n• Hızlandırıcı sistem\n• İnhibitör (ör: metoksifenol)\n• UV stabilizatör\n\nIşıkla: Başlatıcı → kamforokinon, Hızlandırıcı → alifatik amin\nKimyasal: Başlatıcı → benzoil peroksit, Hızlandırıcı → tersiyer amin\n(PPD ve TPO → kamforokinona alternatif)\n\n2) İNORGANİK FAZ (Doldurucu):\nKuartz, zirkonyum, çinko, silika, baryum, stronsiyum, borosilikat cam\n→ Sertlik↑, büzülme↓, termal genleşme↓, su emilimi↓, radyoopasite↑\n%60'tan az → orta dolduruculu, fazla → yoğun dolduruculu\n\n3) ARA FAZ: Silan – bir yandan silika ile diğer yandan metakrilat ile bağ yapar"},
+{id:10, q:"Akışkan kompozitlerin endikasyonları nelerdir?", a:"• Küçük Sınıf I kaviteler\n• Sınıf V kaviteler\n• Çürüksüz servikal lezyonlar\n• Fissür sealant olarak\n• Porselen tamirinde"},
+{id:11, q:"Tükürüğün içeriği nedir?", a:"%99'u su, %1'i:\n• Elektrolitler (Na, Mg, Cl, K)\n• Bakteri, virüs\n• Glikoprotein\n• Antibakteriyel maddeler (IgA, hidrojen peroksit)\n• Mukopolisakkarit\n• DOS (dental organik sıvı)"},
+{id:12, q:"Atrizyon nedir? Sınıflandırması ve klinik bulguları?", a:"Atrizyon: Yabancı bir cisim olmaksızın, çiğneme etkisiyle dişin dişle kontağı sonucu oluşan yavaş ve düzenli madde kayıplarıdır.\n\nFizyolojik Atrizyon:\n• Üst/alt keserlerin kesici kenarları\n• Büyük azıların oklüzal yüzleri\n• Üst büyük azıların palatinal tüberkülleri\n• Alt büyük azıların vestibül tüberkülleri\n\nPatolojik Atrizyon:\n• Hastada yaşına oranla normalden fazla aşınma\n• Bruksizm en önemli etken\n• Amelogenezis/dentinogenezis imperfekta\n• Alt çenede prognati → üst keserlerin vestibül yüzü\n• Örtülü kapanış → üst keserlerin palatinal yüzü"},
+{id:13, q:"Abrazyon nedir? Açıklayınız.", a:"Yabancı bir madde etkisi ile görülen madde kayıplarıdır.\n\nDentin ekspoze olduğunda tübüler kalsifikasyon ve reaksiyon dentini oluşur → nadiren hassasiyet görülür.\n\nAbrazyon çeşitleri:\n1) Diş fırçası abrazyonu: En sık, kesici-kanin-premolar bölgede\n2) Kroşe abrazyonu\n3) Alışkanlıklar: Pipo, ayçiçeği abrazyonu\n4) Meslekle ilgili etkenler: Terziler vb.\n5) Ağız içi takıları"},
+{id:14, q:"Abfraksiyon nedir? Açıklayınız.", a:"Eksantrik yüke maruz kalan dişlerde bükülme ve fleksüel streslere bağlı olarak oluşan çürüksüz servikal lezyonlardır. Kama şeklindedir.\n\nÖzellikleri:\n• Yükün uygulandığı yerin uzağında, kolede mine ve dentin yorgunluğu sonucu oluşur\n• Genelde bukkal yüzeyde, asimetriktir\n• Kama ya da üçgen şeklindedir\n• Kolede mine ince ve mine-dentin bağlantısı zayıf\n\nEtiyoloji:\n• Çiğneme ve maloklüzyon ile oluşan stresler\n• Asit etkisi ya da abrazyon\n• Dişin kendisinden kaynaklı sebepler"},
+{id:15, q:"Erozyon nedir? Tükürüğün erozyona etkisi? Erozyon önlemleri?", a:"Erozyon: Bakterilerin katılmadığı, kimyasal (asit etkisi) bir olayla diş sert dokularında gözlenen madde kayıplarıdır.\n\nKlinik: Üst keser dişlerin vestibül, alt keser dişlerin insizal yüzeylerinde. pH 5.5 altına düşerse oluşur.\n\nDış kaynaklı: Diyet, ilaçlar, çevresel faktörler\nİç kaynaklı: Reflü, anoreksia, bulimia, kronik alkolizm\n\nTükürüğün etkisi:\n• Sitrik asit↑ → pH↓\n• Müsin↑ → tamir için gereken Ca azalır\n\nÖnlemler:\n• Asitli gıdalar azaltılır\n• Florür uygulaması\n• Bikarbonat/üre içerikli sakızlar\n• İleri vakalarda restoratif/protetik tedavi\n• Şeker bırakılamıyorsa → bal önerilir"},
+{id:16, q:"Korumaya yönelik tedaviler nelerdir? Diş aşınmalarının tedavileri?", a:"1) Korumaya yönelik:\n• Beslenme alışkanlıklarını değiştirme\n• Diş fırçalama alışkanlıklarını değiştirme\n• Oklüzal uyumlama ve splint uygulamaları\n\n2) Tedaviye yönelik:\n• Duyarlılık giderici: Diş macunu, vernik, topikal florür, dentin bağlayıcı ajan, lazer\n• Restoratif tedavi\n\nRestoratif tedavi amaçları:\n• Dayanıklılığı artırmak\n• Servikal bölgede stresi azaltmak\n• Hassasiyeti engellemek\n• Pulpanın korunması ve estetik\n\nMateryaller: Geleneksel CİS, rezin modifiye CİS, kompomer, kompozit rezinler"},
+{id:17, q:"İleri derece aşınma ve hassasiyet tedavisi nasıl yapılır?", a:"1. AŞAMA:\n• Dikkatli muayene ile diğer ağrı kaynakları kaldırılır\n• Duyarlılık giderici diş macunu (potasyum nitrat, arginine…)\n• 2-6 haftalık uygulama\n\n2. AŞAMA (Non-invaziv):\n• Klinikte florürler\n• İyontoforezis, okzalatlar, gluteraldehit ajanlar\n• Lazer ve dentin bonding\n\n3. AŞAMA (İnvaziv):\n• Cam iyonomer kaide üzerine kompozit restorasyonlar\n• Endodontik tedavi ve periodontal cerrahi"},
+{id:18, q:"Çürüğün başlangıç (geleneksel) teşhis yöntemleri nelerdir?", a:"1) Sadece Görsel Muayene: Gözle yapılan ilk muayene\n\n2) Görsel-Dokunsal Muayene: Sondla muayene. Bakteri taşınması riski → WHO/CPI sondu önerilir\n\n3) Transilluminasyon: Dişe verilen ışıkla inceleme. Koyu alanlar çürük göstergesi. Avantaj: Radyasyon yok\n\n4) Diş İpi: Arayüzde tüylenme → çürük tespiti\n\n5) Dişlerin Geçici Ayrılması: Plastik ayırıcı ile. Dezavantaj: 2 seans\n\n6) Çürük Boyayıcı Ajanlar: %0.5 bazik fuksin / %1 propilen glikol. Yanlış teşhis riski\n\n7) Radyografik Yöntemler"},
+{id:19, q:"Çürük teşhisinde ileri yöntemler nelerdir?", a:"1) Bakteriyel ve Tükürük Testleri: S. mutans sayısı-çürük orantısı\n\n2) QLF (Kantitatif Işık Ölçümlü Floresans): Işıkla teşhis\n\n3) Dijital Radyografi: Sensörle elektronik görüntüleme\n\n4) DiagnoDENT: Oklüzal çürük teşhisi. Lazer ışını absorbsiyon farkı.\n   0-14: Sağlam\n   15-20: Mine çürüğü\n   21-99: Dentin çürüğü\n\n5) Elektriksel İletkenlik: Çürüğün elektriği daha iyi iletmesi\n\n6) DİFOTİ: Transilluminasyonun elektronik hali"},
+{id:20, q:"Kavite preparasyonunda dayanıklılığı artıran özellikler?", a:"• Düz taban\n• Kutu formu\n• Gereksiz genişletme yapılmaması\n• Zayıflamış diş dokularının kaviteye dahil edilmesi\n• Tüberkül ve kenar sırtlarının korunması\n• Yuvarlatılmış internal açılar\n• Restoratif materyalin yeterli kalınlığı\n• Restorasyonun sağlam dentin üzerine oturması\n• Tüberkül arası isthmus genişliği 1/3 olmalı"},
+{id:21, q:"Polimerizasyon büzülmesi nedir ve etkileyen faktörler?", a:"Monomerlerin polimere dönüşmesi esnasındaki %1.5-3'lük hacimsel büzülmedir.\n\nIşıkla sertleşen → ışık kaynağına doğru büzülme\nKimyasal sertleşen → merkeze doğru büzülme\n\nEtkileyen faktörler:\n\n1) Kavite Geometrisi:\n   a) C-faktörü = bağlanan yüzey / bağlanmayan yüzey\n   b) Kavite boyutu\n\n2) Uygulama Tekniği:\n   a) Tabakalar halinde yerleştirme\n   b) Işık pozisyonu, şiddeti ve süresi\n   c) Bonding ajan ve kaide materyali kullanımı\n\n3) Restoratif Materyal:\n   a) Elastisite modülü\n   b) Boyutsal değişim\n   * Doldurucu oranı yüksek → büzülme azalır"},
+{id:22, q:"Parotis bezini anlatınız. Parotis tükürüğünün özellikleri?", a:"• Stenon kanalıyla ağza açılır\n• Saf serözdür, müsin içermez → saydam ve sulu\n• Uyarılmış tükürük salgısında hakimdir\n• Alfa-amilaz ile karbonhidrat sindirimini başlatır\n• Kuru besinlerin ıslatılmasını ve asidik/bazik maddelerin seyreltilmesini sağlar\n• Prolinden zengin proteinler ve aglütininler içerir"},
+{id:23, q:"Tükürüğün antimikrobiyal etkisi? Çürük üzerine etkisi?", a:"Antimikrobiyal komponentler:\nAmilaz, lizozim, laktoferrin, laktoperoksidaz, müsin, sistatin, histatin, prolin, glikoproteinler, salgısal IgA, statherin\n\nBakterilere karşı:\n• Metabolizmalarını inhibe eder\n• Adezyonlarına mani olur\n• Bakteri duvarını parçalar\n• Florayı destekler\n\nÇürüğe karşı:\n• Bikarbonat, fosfat, üre ile plak asidini tamponlar\n• Visköz tükürük → asit uzaklaştırılması azalır\n• Erken lezyonlar Ca, P, F ile remineralize olur\n• Akış hızı azalırsa → asitleri nötralize edemez"},
+{id:24, q:"Tükürük akışını etkileyen faktörler nelerdir?", a:"ARTIRAN: Çiğneme, hamilelik, bezin büyüklüğü, yiyecek görmek, koku alma\n\nAZALTAN: Bazı ilaçlar, yaşlanma, radyoterapi, konjenital bozukluklar, sistemik hastalıklar, tükürük bezi hastalıkları, psikolojik bozukluklar, cerrahi/travma, egzersiz, yüksek ateş, uyku hali, yaz ayları, alkol, menopoz, sigara, dehidrasyon, vücut pozisyonu"},
+{id:25, q:"İyon salan kompozitler nedir?", a:"Yapılarındaki özel kimyasallardan florür, kalsiyum, hidroksil iyonları serbestleşir.\n\nEtkileri:\n• Mikroorganizmaları ve asitleri etkiler\n• Komşu diş dokularını demineralizasyondan korur\n• Düşen pH koruyucu iyon salınımını tetikler\n• Asitleri tamponlar\n• Demineralizasyonu azaltır\n• Sekonder çürük oluşumunu önler\n\nAçığa çıkan iyon oranı materyalin dış yüzeyindeki pH'a bağlıdır."},
+{id:26, q:"Siloran kompozitleri açıklayınız.", a:"Büzülmeyen veya az büzülen monomer sistemlerdir.\n\nYapısı: Oksiran + Siloksan\n• Oksiran → düşük polimerizasyon büzülmesi (halka açılma ile kompanse)\n• Siloksan → yüksek hidrofobisite → su emilimi ve renklenme azalır\n\nÖzellikleri:\n• %1 polimerizasyon büzülmesi (%80 stres azaltımı)\n• Yüksek dayanıklılık\n• Daha iyi marjinal adaptasyon\n• Daha az renklenme\n\nDezavantaj: Translusensi ve renk seçeneği azdır"},
+{id:27, q:"Nanofil kompozitleri açıklayınız.", a:"Nano materyaller 100 nm ve daha küçük boyutlara sahiptir.\n\nİnorganik fazında 2 doldurucu:\n1) Silika nanomer: Ayrı ayrı bulunur\n2) Zirkonya-silika nanocluster: Kuvvet karşısında büyük molekül gibi davranır\n\nNanohibrit özellikleri:\n• Düşük polimerizasyon büzülmesi\n• Artmış mekanik ve optik özellikler\n• Yüksek aşınma direnci"},
+{id:28, q:"Self-adeziv kompozitlerin etki mekanizması?", a:"İçerisine all-in-one adeziv rezin ilave edilmiş akıcı kompozitlerdir. Kaviteye direkt uygulanabilir.\n\nİçerik:\n• Asidik monomerler (GDPM, 4-MET): Mine ve dentini asitler\n• HEMA monomeri → ıslanabilirliği artırır\n\nBağlanma 2 yolla:\n1) Asidik monomerlerin fosfat grubu + dişin Ca iyonları → kimyasal bağ\n2) Kollajen fibriller + monomerler → mikromekanik bağ\n\nEndikasyonlar: Küçük Sınıf I, Sınıf V, çürüksüz servikal lezyonlar, fissür sealant, porselen tamiri, braket yapıştırma\n\nDezavantaj: Bağlanma değerleri geleneksel kompozitlerden düşüktür"},
+{id:29, q:"Bulk-fill kompozitleri anlatınız ve sınıflandırınız.", a:"4-6 mm'ye kadar tek seferde kaviteye yerleştirilebilen kompozitlerdir.\n\nÖzellikler: Düşük büzülme, minimum el uygulaması, iyi kavite adaptasyonu, en az 4 mm sertleşme derinliği\n\nSınıflandırma:\n1) Düşük Viskoziteli (Akışkan): Yüksek esneyebilirlik. Üstü 2 mm geleneksel kompozitle örtülmeli\n2) Yüksek Viskoziteli: En çok tercih edilen. 6 mm'ye kadar tek seferde\n3) Sonic Aktivasyonlu: Titreşimle akışkan hale geçer → iyi adaptasyon\n4) Dual Cure: Hem ışık hem kimyasal sertleşme"},
+{id:30, q:"13 nolu dişte proksimal kök-kron çürüğü, 14 diş yok. Nasıl restore edilir?", a:"• Frezi 45 derece açıyla tutarak elmas rond frezle kavite modifiye kutu şeklinde açılır\n• Mineye bizotaj yapılır\n• Kompozit ile restore edilir"},
+{id:31, q:"Bizotaj nedir? Yararları ve amaçları? Nerede yapılır?", a:"Tanım: Kavite kenarlarının yuvarlatılması yoluyla yüzey genişletme işlemidir.\n\nUygulama: Anterior ve posterior bölgelerde 45 derece açıyla\n\nAmaçları:\n• Bond ve kompozitin tutunduğu yüzey alanını artırır\n• Kompozitin daha kuvvetli tutunmasını sağlar\n• Kompozit-diş arası renk uyumunu oluşturur\n• Doğal doku görünümü sağlar"},
+{id:32, q:"Fissür çürüklerini açıklayınız. Nasıl ilerler? Profilaksisi?", a:"Büyük ve küçük azıların çiğneyici yüzeylerindeki oluklarda oluşan çürüklerdir. V, U, I, ampul şeklinde olabilir.\n\nNeden en sık burada?\n• İyi temizlenemez → plak birikimi\n• Tükürük pH'yı nötralize edemez\n• Mine ince ve iyi kalsifiye olmamış\n• Lameller mevcut\n\nİlerleme: Mine prizmaları yönünde yayılır. Kesitte ∆ şeklinde.\n\nEvreler:\n1) Kahverengi-siyah çizgiler\n2) Beyaz-opak çizgiler (mine başlangıç)\n3) Gri renk (mine-dentin)\n4) Kavite\n\n1-2 → Fissür sealant | 3-4 → Restoratif tedavi\n\nProfilaksi: Profilaktik odontomi, V şekline dönüştürme, fissür sealant (en iyi), diş fırçalama (yetersiz)"},
+{id:33, q:"Arayüz çürüğü nedir? Oluşma nedenleri?", a:"Dişlerin proksimal yüzeylerinde (2 dişin arasında) oluşan çürüklerdir.\n\nBelirtiler: Food impaction, tatlı/soğuk/sıcakta ağrı\n\nTeşhis: Ortodontik seperatörler, diş ipi liflenmesi, bite-wing radyografi, sond\n\nOluşum nedenleri:\n• Oklüzal travma\n• Ortodontik bozukluklar\n• Yanlış beslenme\n• Dişeti hastalıkları\n• Yetersiz antibakteriyel ajan\n\nÖnleme: Diş ipi ve arayüz fırçası"},
+{id:34, q:"Plak birikimini engelleyen ajanlar nelerdir?", a:"• Katyonik: Klorheksidin (CHX)\n• Noniyonik: Triklosan\n• Anyonik: Sodyum dodesil sülfat"},
+{id:35, q:"Kazein fosfopeptit - amorf kalsiyum fosfat (CPP-ACP) nedir?", a:"1) Plağın Ca ve PO₄ iyon seviyesini artırır → demineralizasyonu önler\n\n2) Serbest Ca ve PO₄'ı bağlayarak diş yüzeyini aşırı doygun hale getirir → remineralizasyonu artırır\n\n3) Bakteri hücrelerine bağlanarak kolonizasyonu engeller\n\n4) Düşen plak pH'sını tamponlar ve fermentasyonu inhibe eder"},
+{id:36, q:"Akut flor toksisitesi nedir? Dozları ve belirtileri? Florozis?", a:"İçme suyu florid oranı günlük 1.5 mg/L'yi geçmemeli (WHO 2004)\nTek seferde toksik doz: 5 mg/kg\nÖldürücü doz: 32-64 mg F/kg\n\nAkut belirtiler: Mide bulantısı, kusma, ishal, karın ağrısı, hipersalivasyon, baş ağrısı → konvülsiyon, tetani, aritmi, hipotansiyon, hipokalsemi, hiperkalemi, bilinç kaybı\nÖlüm: Kalp aresti, ventriküler fibrilasyon, solunum felci\nTedavi: Ca, Mg veya Al tuzları\n\nFlorozis: Fazla flor alımı → diş yüzeyinde beyaz-sarı-kahverengi lekeler ve çukurlaşmalar\nKorunma: Bezelye büyüklüğünde macun, yutmama, gereksiz flor tableti kullanmama\nTedavi: Beyazlatma, aşındırma, kompozit restorasyonlar"},
+{id:37, q:"Çapraz enfeksiyon, antisepsi, dezenfeksiyon, sterilizasyon, asepsi tanımları?", a:"Asepsi: Çapraz kontaminasyonu engellemek\n\nBulaşma yolları:\n• Direkt kontaminasyon\n• İndirekt kontaminasyon: Kontamine ellerle dokunulan yüzeyde oluşur\n\nDezenfeksiyon materyali özellikleri:\n• Ucuz ve etkili\n• Suda erimeli ve iyi ıslatıcı\n• Kısa sürede etkili\n• Az zehirli, nonalerjik, nonkanserojen"},
+{id:38, q:"Sterilizasyon yöntemleri nelerdir? Otoklav?", a:"1) Basınçlı buhar – Otoklav: 121°C, en az 15 dakika\n2) Basınçlı kimyasal buhar – Kemiklav: 131°C, 30 dakika\n3) Kuru ısı ile sterilizasyon\n4) Etilen oksit (ETOX)\n\nBaşarısızlık nedenleri:\n• Yanlış zaman ve ısı seçimi\n• Kapağın sık açılıp kapanması\n• Aletlerin yeterince temizlenmemesi"},
+{id:39, q:"Mine çürüğü tabakaları? Saydam tabakayı açıklayınız.", a:"Mine yüzeyinden dentine doğru:\n\n1) YÜZEYEL TABAKA: Hipermineralize. Normal mineden sert. İyon difüzyonuna geçirgen. Remineralizasyonun rolü büyük.\n\n2) ÇÜRÜĞÜN GÖVDESİ: En büyük kısım. Retzius çizgileri genişlemiş. %24 mineral azalması. Karma yapı.\n\n3) KARANLIK TABAKA: Kahverengi bant. Daimi dişlerin %85-90'ında mevcut. Hızlı çürük→ince, yavaş→kalın.\n\n4) SAYDAM TABAKA: Normal mineden farklı olan İLK tabaka. İlerleyen çürükte ilk belirti. Mineden 10 kat pöröz. %1.2 mineral kaybı. Prizma ara maddesi ve Retzius çizgileri yok olmuş ya da çok azalmıştır."},
+{id:40, q:"Dentin çürüğü tabakaları? Yağlı dejenerasyon tabakası?", a:"Dıştan pulpaya doğru:\n\n1) YUMUŞAMA: Nekrotik, kolayca uzaklaştırılabilir. HA ve organik kısım harap.\n\n2) BAKTERİ HÜCUMU: En önemli değişiklikler. Kanalcıklarda koloniler → genişleme. Komşu kanallar birleşerek kavern. Dead tracts oluşur.\n\n3) DEMİNERALİZASYON: İnce tabaka. İntertübüler matriks etkilenmiş, kanallar tıkanmış.\n\n4) SAYDAM: Kanallar kireç tuzlarıyla yeniden dolar. Geçirgen değil. Sadece canlı dişlerde. Pulpa-dentin işbirliği.\n\n5) YAĞLI DEJENERASYON: Dentine gönderilen yağın işlenmesinden oluşur. Odontoblast uzantıları içinde yağ yuvarları. Saydam tabakanın altında. Çürüğe özgü DEĞİLDİR → ısı, hava, sprey, kesme gibi uyaranlarla da oluşabilir."},
+{id:41, q:"Işık uygulama teknikleri nelerdir?", a:"1) Geleneksel: 450-500 mW, 40 saniye\n2) Yüksek ışık: 900-1000 mW\n3) Kademeli güç artışı (Step-curing)\n4) Düzenli artan güç (Ramped-curing)\n5) Ara verilmiş kademeli (Pulse-delay)\n6) Aralıklı ışık (Intermittent)\n\nSoft Start: Step + Ramped birleşimi"},
+{id:42, q:"Polimerizasyonda kullanılan ışık kaynakları?", a:"1) Kuartz-Tungsten-Halojen (QTH): 100W, 400-500 nm\n2) LED: 15W, 450-490 nm, filtre gerektirmez, pilli, hafif, uzun ömürlü. Dezavantaj: Dar spektrum → sadece CQ kompozitler\n3) Plazma Ark: En hızlı polimerizasyon\n4) Argon Lazer\n\nLED vs Halojen:\n• LED daha etkili, pilli, filtresiz, hafif, ergonomik\n• Halojen daha geniş spektrum"},
+{id:43, q:"Geleneksel cam iyonomer simanların kullanım alanları ve özellikleri?", a:"CİS tipleri:\n• Tip I: Yapıştırıcı\n• Tip II: Restoratif\n• Tip III: Kaide\n\nAvantajları: Tam sertleşme, düşük ekzotermi, büzülme yok, flor salınımı, genleşme/iletkenlik diş dokusuna yakın\n\nEndikasyonlar: Yaşlı/yüksek çürük aktivitesi, süt dişi restorasyonu, kök çürükleri, açık sandviç tekniği\n\nFlor salınımı: İlk günler yüksek, zamanla azalır, tekrar depolanabilir"},
+{id:44, q:"Asidin diş yüzeyine (mine ve dentin) etkileri?", a:"MİNEYE:\n• Smear tabaka kaldırılır\n• Mikroskobik girinti-çıkıntı oluşur\n• Yüzey alanı genişler\n• Yüzey gerilimi ve ıslanabilirlik artar\n\nDENTİNE:\n• Smear tabaka uzaklaştırılır\n• Demineralizasyon oluşur\n• Peritübüler dentin kalkar\n• İntertübüler dentinde mikroporözite artar\n• Tübül ağızları açılır, kollajen fibriller açığa çıkar\n• Yüzey gerilimi düşer → adezyon olumsuz etkilenir\n\nDİKKAT: Fazla kurutma → kollajen ağ büzülür. Fazla nem → primer etki gösteremez"},
+{id:45, q:"Minimal invaziv diş hekimliği nedir?", a:"Tanım: Çürük riski altındaki bireylerde enfeksiyon durdurularak demineralize dokuların remineralizasyonunu sağlamak.\n\nTeknikler:\n• Yeni nesil kavite preparasyonları\n• Sonik teknikler\n• Air abrazyon ve bioaktif camlar\n• Kemomekanik tedavi\n• Lazerler\n• Polimer kesim aletleri\n• Resin infiltrasyon tekniği\n\nVazgeçilenler: Geleneksel preparasyonlar, undercut, yiv, yardımcı kaviteler, düz kavite duvarları, zayıf doku bırakma"},
+{id:46, q:"Polimerizasyon yöntemine göre kompozit sınıflandırması?", a:"1) Kimyasal olarak sertleşen (otokürlenen)\n2) Işık ile sertleşen (fotokürlenen)\n3) Hem ışık hem kimyasal sertleşen (dual-cure)"},
+{id:47, q:"Diş aşınmalarının tedavileri?", a:"1) Korumaya Yönelik:\n   a) Beslenme alışkanlıkları değiştirme\n   b) Diş fırçalama alışkanlıkları değiştirme\n   c) Oklüzal uyumlama ve koruyucu splint\n\n2) Tedaviye Yönelik:\n   a) Duyarlılık giderici (macun, vernik, topikal florür, dentin bağlayıcı, lazer)\n   b) Restoratif tedavi"},
+{id:48, q:"Kondense edilebilen kompozitler nedir?", a:"Viskozitelerine göre yüksek viskoziteli grupta yer alırlar.\n\nViskoziteye göre:\n• Kondanse olabilen kompozitler (yüksek viskozite)\n• Akışkan kompozitler (düşük viskozite)"},
+{id:49, q:"Pulpa irritasyonunun sebepleri?", a:"• Termal ve elektriksel uyaranlar\n• Bakteri ve endotoksinler\n• Kimyasal uyaranlar\n• Mekanik etkenler\n\nYetersiz polimerizasyon sonucu:\n1) Mine/dentin bağlanma zayıflar → mikrosızıntı\n2) Toksik monomerler pulpayı olumsuz etkiler\n3) Renk değişimi\n4) Fiziksel özellikler değişir"},
+{id:50, q:"Lazerin diş hekimliğindeki faydaları?", a:"Kullanım alanları: Çürük teşhisi, çürük önleme, çürük uzaklaştırma/kavite preparasyonu (Er:YAG), pürüzlendirme, defekt tedavisi, hassasiyet giderme, yumuşak doku, kavite dezenfeksiyonu, beyazlatma\n\nMineye lazer sonucu: Çatlak/çukur/çizik, prizmatik yapı kaybı, su/karbonat/organik madde↓, mikroboşluk\n\nNd:YAG: Kavite taban dezenfeksiyonu, çürük dentin kaldırma, kanama blokajı, hassasiyet tedavisi\n\nNOT: Amalgam sökmede kullanılabilir ama civa buharı nedeniyle tercih edilmez"},
+{id:51, q:"Rezin modifiye cam iyonomer endikasyonları?", a:"Önce ışıkla, sonra asit-baz reaksiyonuyla sertleşirler. Tüm diş dokularına çok iyi bağlanırlar.\n\nEndikasyonlar:\n• Çürüksüz servikal lezyonlar\n• Yüksek çürük aktivitesi\n• Azalmış tükürük akış hızı\n• Kök çürükleri\n• Kole abrazyon defektleri\n• Kor yapımı\n• Süt dişleri\n• Post kompozit altı\n• Açık sandviç tekniği"},
+{id:52, q:"Kaide materyali nedir? İstenen özellikleri?", a:"Kaideler termal yalıtım sağlayarak pulpayı korur. Termal, mekanik, kimyasal travma, galvanik akım ve mikrosızıntıdan korur.\n\nGörevleri:\n• Kayıp dentin yerine geçer\n• Restoratif materyalin kütlesini azaltır\n• Yerleştirme kuvvetlerine direnç sağlar\n• Undercutları giderir\n• Bölgesel kuvvetleri dentin yüzeylerine dağıtır"},
+{id:53, q:"İyontoforezis nedir?", a:"Düşük amperli elektrik akımıyla iyonların doku içine girişini sağlayan yöntemdir.\n\nMekanizma:\n• Dentin tübüllerinde florür konsantrasyonu artırılır\n• CaF₂ çökelmesi → tübüller tıkanır → hassasiyet kaybolur\n\nUygulama:\n• %2 sodyum florür solüsyonu iyontoforezis cihazıyla uygulanır\n• Diş yüzeyinde pozitif yük elde edilir\n• Negatif florür iyonu tübülde derine hareket eder"},
+{id:54, q:"Etch-and-rinse adeziv sistemi açıklayınız.", a:"Smear tabakasını tamamen uzaklaştırır.\n\n3 Aşamalı (4. jenerasyon): Asit + Primer + Adeziv\n2 Aşamalı (5. jenerasyon): Asit + (Primer+Adeziv)\n\nFosforik asit (%10-37)\nMine: ≥15 sn | Dentin: ≤15 sn\nSklerotik dentinde süre uzar\n\nEtkileri:\n• Smear tabaka/tıkaçlar uzaklaştırılır → geçirgenlik artar\n• İntertübüler dentinde demineralizasyon → nano boşluklar\n• Mikroporözite artar\n• Mine yüzeyi temizlenir, bağlanma alanı artar"},
+{id:55, q:"Kalsiyum hidroksitin etki mekanizmaları?", a:"• Uygulandığı yerde ince nekroz tabakası oluşturur\n• Nekroz → pulpanın koruma mekanizması aktifleşir\n• Mezenşim hücreleri → fibroblast → odontoblast → tamir dentini\n• 7 gün sonra enzimatik faaliyet tekrar başlar\n• 3-4 haftada tamir dentini histolojik olarak gözlenir\n\nDikkat: Bazı Ca(OH)₂ formları bonding ajanlarla temas edince çözünürlük↑ → marjinal sızıntı artabilir\n\nLiner olarak ince uygulanır çünkü zamanla rezorbe olur"},
+{id:56, q:"All-in-one (tek aşamalı) adeziv sistemlerin özellikleri?", a:"• Tek doz paketlenebilme → stabilite, hijyenik uygulama\n• Geleneksel asitle pürüzlendirme sorgulanmaya başlanmıştır\n• Dentine bağlanma değerleri total-etch'ten düşüktür\n\nUniversal Adeziv Sistemler:\n• Tek şişe ile hem ER hem SE teknikle bağlanma\n• \"Multi-mode\" olarak adlandırılır\n• Mine marjinlerinin selektif asitlenmesinde kullanılabilir\n• Selektif asitleme → SE + ER avantajlarını birleştirir"},
+{id:57, q:"Işıkla polimerize olan kompozitlerin avantajları?", a:"• Çalışma zamanı hekim tarafından belirlenir\n• Renk seçenekleri daha fazla\n• Daha az porozite\n• Hızlı, kontrollü ve derin polimerizasyon"},
+{id:58, q:"Cam iyonomer simanların etki mekanizması?", a:"CİS diş dokusuna bağlanır, termal bariyer görevi yapar, antikaryojeniktir, nemli dokuya bağlanabilir.\n\nMekanizma:\n• Sertleşen materyal nemle temas → su emilimi başlar\n• Haftalarca-aylarca devam edebilir\n• H iyonları salınarak cam partikülleriyle reaksiyon\n• Asit-baz reaksiyonu → florür iyonu salınımı\n\nAvantajlar: Diş dokusuna bağlanma, biyouyumluluk, florür salınımı, uygun termal genleşme/büzülme\nDezavantajlar: Hidrate olma, düşük basınç/gerilme dayanıklılığı, zayıf estetik"},
+{id:59, q:"Çürük temizleme stratejisi nasıl olmalıdır?", a:"Periferal bölge: Periferal seal zone'da çürük kesinlikle bırakılmaz → tam temizlenir\n\nAksiyal ve pulpal bölge:\n• Pulpa açılma riski VAR → enfekte çürük alınır, etkilenmiş dentin (demineralize ama mo. yok) bırakılabilir\n• Pulpa açılma riski YOK → etkilenmiş dentin de kaldırılır\n\nNeden? En iyi adezyon sağlam dentin ve minededir. Etkilenmiş dentin bırakmak → sekonder çürük ve mikrosızıntı riski"},
+{id:60, q:"Çalışma pozisyonları nelerdir?", a:"Saat pozisyonu olarak ifade edilir.\n\nSağ elini kullanan hekimler:\n• Saat 7 (Sağ-ön): Mandibular anterior, mandibular posterior sağ, maksiller anterior\n• Saat 9 (Sağ): Maksiller/mandibular sağ posterior fasial ve alt posterior oklüzal\n• Saat 11 (Sağ-arka): Çoğu işlem için. Ağzın tüm alanlarına ulaşılır\n• Saat 12 (Direk arka): Mandibular ön dişlerin lingual yüzeyleri\n\nSolak hekimler için tersi geçerlidir.\nOturarak yapılması bel ve bacak sağlığı için tercih edilir."}
+];
+
+var currentScreen = 'home';
+var currentQ = null;
+var isRandom = false;
+
+document.getElementById('qcount').textContent = Q.length + ' Soru';
+
+// Build list
+var listHtml = '';
+for (var i = 0; i < Q.length; i++) {
+  var txt = Q[i].q;
+  if (txt.length > 65) txt = txt.substring(0, 65) + '…';
+  listHtml += '<div class="list-item" onclick="openQ(' + i + ',false)"><span class="list-num">' + Q[i].id + '</span><span class="list-text">' + escHtml(txt) + '</span></div>';
+}
+document.getElementById('listContainer').innerHTML = listHtml + '<div style="height:40px"></div>';
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  currentScreen = id;
+}
+
+function goHome() {
+  switchScreen('home');
+}
+
+function showList() {
+  switchScreen('list');
+}
+
+function openQ(idx, random) {
+  currentQ = Q[idx];
+  isRandom = random;
+  document.getElementById('qTopTitle').textContent = 'Soru ' + currentQ.id;
+  document.getElementById('qBadge').textContent = 'Soru ' + currentQ.id + '/' + Q.length;
+  document.getElementById('qText').textContent = currentQ.q;
+  document.getElementById('aText').textContent = currentQ.a;
+  document.getElementById('aCard').style.display = 'none';
+  var btn = document.getElementById('btnAnswer');
+  btn.textContent = 'Cevabı Gör ▼';
+  btn.classList.remove('open');
+  document.getElementById('btnNext').style.display = random ? 'block' : 'none';
+  document.getElementById('qBack').onclick = function() { random ? goHome() : showList(); };
+  document.getElementById('qScroll').scrollTop = 0;
+  switchScreen('question');
+}
+
+function openRandom() {
+  var idx = Math.floor(Math.random() * Q.length);
+  openQ(idx, true);
+}
+
+function toggleAnswer() {
+  var card = document.getElementById('aCard');
+  var btn = document.getElementById('btnAnswer');
+  if (card.style.display === 'none') {
+    card.style.display = 'block';
+    btn.textContent = 'Cevabı Gizle ▲';
+    btn.classList.add('open');
+  } else {
+    card.style.display = 'none';
+    btn.textContent = 'Cevabı Gör ▼';
+    btn.classList.remove('open');
+  }
+}
+
+// Android back button support
+window.goBack = function() {
+  if (currentScreen === 'question') {
+    isRandom ? goHome() : showList();
+  } else if (currentScreen === 'list') {
+    goHome();
+  }
+};
+</script>
+</body>
+</html>
