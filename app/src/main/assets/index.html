@@ -39,11 +39,13 @@ body {
 
 /* TOPBAR */
 .topbar {
-  display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 16px 16px;
+  padding-top: calc(32px + env(safe-area-inset-top, 0px));
   border-bottom:1px solid #1e3a5f; background:rgba(7,14,26,0.92); backdrop-filter:blur(10px);
-  flex-shrink:0; padding-top: max(14px, env(safe-area-inset-top));
+  flex-shrink:0;
 }
-.topbar .back { background:none; border:none; color:#4fc3f7; font-size:15px; font-weight:600; cursor:pointer; min-width:60px; text-align:left; }
+.topbar .back { background:none; border:none; color:#4fc3f7; font-size:16px; font-weight:600; cursor:pointer; min-width:60px; text-align:left; padding:8px 0; }
 .topbar .title { font-size:16px; font-weight:700; color:#fff; }
 .topbar .spacer { width:60px; }
 
@@ -91,6 +93,26 @@ body {
   cursor:pointer; box-shadow:0 4px 16px rgba(76,175,80,0.25); margin-bottom:16px;
 }
 .bottom-pad { height:40px; flex-shrink:0; }
+
+/* PREV/NEXT NAV */
+.nav-row {
+  display:flex; gap:10px; margin-bottom:16px;
+}
+.nav-btn {
+  flex:1; padding:13px 0; font-size:14px; font-weight:700; border-radius:12px;
+  cursor:pointer; border:none; transition:all 0.15s; letter-spacing:0.2px;
+}
+.nav-btn:active { transform:scale(0.97); }
+.nav-prev {
+  color:#b0bec5; background:rgba(255,255,255,0.06); border:1px solid #1e3a5f;
+}
+.nav-next-q {
+  color:#fff; background:linear-gradient(135deg,#0d47a1,#1976d2);
+  box-shadow:0 3px 12px rgba(25,118,210,0.3);
+}
+.nav-btn:disabled {
+  opacity:0.3; cursor:default; transform:none;
+}
 </style>
 </head>
 <body>
@@ -132,6 +154,12 @@ body {
     <div class="a-card" id="aCard" style="display:none">
       <div class="a-text" id="aText"></div>
     </div>
+    <!-- Prev/Next navigation for list mode -->
+    <div class="nav-row" id="navRow" style="display:none">
+      <button class="nav-btn nav-prev" id="btnPrev" onclick="goPrev()">← Önceki Soru</button>
+      <button class="nav-btn nav-next-q" id="btnNextQ" onclick="goNext()">Sonraki Soru →</button>
+    </div>
+    <!-- Random next button -->
     <button class="btn-next" id="btnNext" style="display:none" onclick="openRandom()">🎲&nbsp; Sonraki Rastgele Soru</button>
     <div class="bottom-pad"></div>
   </div>
@@ -203,6 +231,7 @@ var Q = [
 
 var currentScreen = 'home';
 var currentQ = null;
+var currentIdx = 0;
 var isRandom = false;
 
 document.getElementById('qcount').textContent = Q.length + ' Soru';
@@ -234,26 +263,59 @@ function showList() {
   switchScreen('list');
 }
 
-function openQ(idx, random) {
-  currentQ = Q[idx];
-  isRandom = random;
-  document.getElementById('qTopTitle').textContent = 'Soru ' + currentQ.id;
-  document.getElementById('qBadge').textContent = 'Soru ' + currentQ.id + '/' + Q.length;
-  document.getElementById('qText').textContent = currentQ.q;
-  document.getElementById('aText').textContent = currentQ.a;
+function renderQuestion() {
+  var q = Q[currentIdx];
+  currentQ = q;
+  document.getElementById('qTopTitle').textContent = 'Soru ' + q.id;
+  document.getElementById('qBadge').textContent = 'Soru ' + q.id + '/' + Q.length;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('aText').textContent = q.a;
   document.getElementById('aCard').style.display = 'none';
   var btn = document.getElementById('btnAnswer');
   btn.textContent = 'Cevabı Gör ▼';
   btn.classList.remove('open');
-  document.getElementById('btnNext').style.display = random ? 'block' : 'none';
-  document.getElementById('qBack').onclick = function() { random ? goHome() : showList(); };
+
+  // Show prev/next nav for list mode, random button for random mode
+  if (isRandom) {
+    document.getElementById('navRow').style.display = 'none';
+    document.getElementById('btnNext').style.display = 'block';
+  } else {
+    document.getElementById('navRow').style.display = 'flex';
+    document.getElementById('btnNext').style.display = 'none';
+    document.getElementById('btnPrev').disabled = (currentIdx === 0);
+    document.getElementById('btnNextQ').disabled = (currentIdx === Q.length - 1);
+  }
+
+  document.getElementById('qBack').onclick = function() { isRandom ? goHome() : showList(); };
   document.getElementById('qScroll').scrollTop = 0;
+}
+
+function openQ(idx, random) {
+  currentIdx = idx;
+  isRandom = random;
+  renderQuestion();
   switchScreen('question');
 }
 
 function openRandom() {
   var idx = Math.floor(Math.random() * Q.length);
   openQ(idx, true);
+}
+
+function goPrev() {
+  if (currentIdx > 0) {
+    currentIdx--;
+    renderQuestion();
+    document.getElementById('qScroll').scrollTop = 0;
+  }
+}
+
+function goNext() {
+  if (currentIdx < Q.length - 1) {
+    currentIdx++;
+    renderQuestion();
+    document.getElementById('qScroll').scrollTop = 0;
+  }
 }
 
 function toggleAnswer() {
